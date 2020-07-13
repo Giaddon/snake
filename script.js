@@ -1,6 +1,9 @@
 const DIMENSIONS = {x: 10, y: 10};
 let gameboard = [];
+let gameover = false;
 let fruit = {x: Math.floor(Math.random() * DIMENSIONS.x ), y: Math.floor(Math.random() * DIMENSIONS.y)}
+let interval = 600;
+let intervalID = null;
 
 class Snake {
   constructor(length=1, head=new Cell(3,3)) {
@@ -8,7 +11,8 @@ class Snake {
     this.head = head;
     this.tail = head;
     this.maxlength = 3;
-    this.body=[];
+    this.body = [];
+    this.direction = "down";
   }
 
   slither(direction) {
@@ -20,6 +24,10 @@ class Snake {
 
     switch (direction) {
       case "down":
+        if (this.head.y + 1 === DIMENSIONS.y) { 
+          gameover = true;
+          break;
+        } 
         this.head.y += 1;
         for (let cell of this.body) {
           let currPos = {x: cell.x, y: cell.y}
@@ -30,6 +38,10 @@ class Snake {
         break;
     
       case "up":
+        if (this.head.y === 0) { 
+          gameover = true;
+          break;
+        } 
         this.head.y -= 1;
         for (let cell of this.body) {
           let currPos = {x: cell.x, y: cell.y}
@@ -41,6 +53,10 @@ class Snake {
       
 
       case "left":
+        if (this.head.x === 0) { 
+          gameover = true;
+          break;
+        } 
         this.head.x -= 1;  
         for (let cell of this.body) {
           let currPos = {x: cell.x, y: cell.y}
@@ -51,6 +67,10 @@ class Snake {
         break;
 
       case "right":
+        if (this.head.x + 1 === DIMENSIONS.x) { 
+          gameover = true;
+          break;
+        } 
         this.head.x += 1;  
         for (let cell of this.body) {
           let currPos = {x: cell.x, y: cell.y}
@@ -58,6 +78,9 @@ class Snake {
           cell.y = lastPos.y
           lastPos = currPos;
         }
+        break;
+
+      default:
         break;
     }
     if (this.length < this.maxlength) {
@@ -90,8 +113,6 @@ function createBoard() {
     }
     gameboard.push(row);
   }
-
-  console.log(gameboard);
 }
 
 function drawBoard() {
@@ -133,6 +154,11 @@ function cycle() {
   function eatFruit(){
     if (`${snake.head.x}-${snake.head.y}` === `${fruit.x}-${fruit.y}`) {
       snake.maxlength += 1;
+      if (interval > 150) { 
+        clearInterval(intervalID);
+        interval -= 50;
+        run();
+      }
       addFruit();
     }
   }
@@ -141,15 +167,19 @@ function cycle() {
     const headPos = `${snake.head.x}-${snake.head.y}`;
     for (let cell of snake.body) {
       let bodyPos = `${cell.x}-${cell.y}`;
-      if (headPos === bodyPos) alert("Game Over!"); 
+      if (headPos === bodyPos) gameover = true;
     }
   }
 
+  snake.slither(snake.direction);
   drawSnake();
   eatFruit();
   drawFruit();
   checkForCollision();
-  console.log(snake);
+  if (gameover) {
+    document.getElementById("gameover").style.setProperty("display", "block"); ;
+    clearInterval(intervalID);
+  }
 }
 
 function addFruit(){
@@ -161,22 +191,24 @@ function addFruit(){
 function start() {
   document.addEventListener('keydown', (event) => {
     const keyName = event.key;
-    if (keyName === 'ArrowDown') snake.slither("down");
-    if (keyName === 'ArrowUp') snake.slither("up");
-    if (keyName === 'ArrowLeft') snake.slither("left");
-    if (keyName === 'ArrowRight') snake.slither("right");
-
-    cycle();
+    if (keyName === 'ArrowDown' && snake.direction !== "up") snake.direction = "down";
+    if (keyName === 'ArrowUp' && snake.direction !== "down") snake.direction="up";
+    if (keyName === 'ArrowLeft' && snake.direction !== "right") snake.direction="left";
+    if (keyName === 'ArrowRight' && snake.direction !== "left") snake.direction="right";
   });
   createBoard();
   drawBoard();
   addFruit();
-  cycle();
+  run();
 }
 
-
+function run() {
+  intervalID = setInterval( () => {cycle()}, interval);
+}
 
 window.onload = start;
+
+
 
 
   
