@@ -1,41 +1,62 @@
 const DIMENSIONS = {x: 10, y: 10};
 let gameboard = [];
+let fruit = {x: Math.floor(Math.random() * DIMENSIONS.x ), y: Math.floor(Math.random() * DIMENSIONS.y)}
 
 class Snake {
   constructor(length=1, head=new Cell(3,3)) {
     this.length = length;
     this.head = head;
     this.tail = head;
-    this.maxlength = 2;
-    this.body=[this.head];
+    this.maxlength = 3;
+    this.body=[];
   }
 
   slither(direction) {
     let newTailPos = {x: this.tail.x, y: this.tail.y}
+    let lastPos = {x: this.head.x, y: this.head.y}
+    // function updateBody() {
+      
+    //   }
 
     switch (direction) {
       case "down":
+        this.head.y += 1;
         for (let cell of this.body) {
-          cell.y += 1;
+          let currPos = {x: cell.x, y: cell.y}
+          cell.x = lastPos.x;
+          cell.y = lastPos.y
+          lastPos = currPos;
         }
         break;
     
       case "up":
+        this.head.y -= 1;
         for (let cell of this.body) {
-          cell.y -= 1;
+          let currPos = {x: cell.x, y: cell.y}
+          cell.x = lastPos.x;
+          cell.y = lastPos.y
+          lastPos = currPos;
         }
         break;
       
 
       case "left":
+        this.head.x -= 1;  
         for (let cell of this.body) {
-          cell.x -= 1;
+          let currPos = {x: cell.x, y: cell.y}
+          cell.x = lastPos.x;
+          cell.y = lastPos.y
+          lastPos = currPos;
         }
         break;
 
       case "right":
+        this.head.x += 1;  
         for (let cell of this.body) {
-          cell.x += 1;
+          let currPos = {x: cell.x, y: cell.y}
+          cell.x = lastPos.x;
+          cell.y = lastPos.y
+          lastPos = currPos;
         }
         break;
     }
@@ -95,15 +116,47 @@ function cycle() {
     for (let cell of boardCells) {
       cell.style.setProperty("background-color", "bisque");
     }
-
+    let targetCell = document.getElementById(`${snake.head.y}-${snake.head.x}`);
+    targetCell.style.setProperty("background-color", "green"); 
+    
     for (let cell of snake.body) {
-      const targetCell = document.getElementById(`${cell.y}-${cell.x}`);
+      targetCell = document.getElementById(`${cell.y}-${cell.x}`);
       targetCell.style.setProperty("background-color", "tomato"); 
     }
   }
 
+  function drawFruit() {
+    let targetCell = document.getElementById(`${fruit.y}-${fruit.x}`);
+    targetCell.style.setProperty("background-color", "gold"); 
+  }
+
+  function eatFruit(){
+    if (`${snake.head.x}-${snake.head.y}` === `${fruit.x}-${fruit.y}`) {
+      snake.maxlength += 1;
+      addFruit();
+    }
+  }
+
+  function checkForCollision() {
+    const headPos = `${snake.head.x}-${snake.head.y}`;
+    for (let cell of snake.body) {
+      let bodyPos = `${cell.x}-${cell.y}`;
+      if (headPos === bodyPos) alert("Game Over!"); 
+    }
+  }
+
   drawSnake();
+  eatFruit();
+  drawFruit();
+  checkForCollision();
+  console.log(snake);
 }
+
+function addFruit(){
+  fruit.x = Math.floor(Math.random() * DIMENSIONS.x );
+  fruit.y = Math.floor(Math.random() * DIMENSIONS.y );
+}
+
 
 function start() {
   document.addEventListener('keydown', (event) => {
@@ -117,6 +170,7 @@ function start() {
   });
   createBoard();
   drawBoard();
+  addFruit();
   cycle();
 }
 
