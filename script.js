@@ -2,8 +2,9 @@ const DIMENSIONS = {x: 10, y: 10};
 let gameboard = [];
 let gameover = false;
 let fruit = {x: Math.floor(Math.random() * DIMENSIONS.x ), y: Math.floor(Math.random() * DIMENSIONS.y)}
-let interval = 600;
+let interval = 500;
 let intervalID = null;
+let score = 0;
 
 class Snake {
   constructor(length=1, head=new Cell(3,3)) {
@@ -159,6 +160,7 @@ function cycle() {
         interval -= 50;
         run();
       }
+      score += 1;
       addFruit();
     }
   }
@@ -171,10 +173,15 @@ function cycle() {
     }
   }
 
+  function updateStats() {
+    document.getElementById("scoreval").innerText = score;
+  }
+
   snake.slither(snake.direction);
   drawSnake();
   eatFruit();
   drawFruit();
+  updateStats();
   checkForCollision();
   if (gameover) {
     document.getElementById("gameover").style.setProperty("display", "block"); ;
