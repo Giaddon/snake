@@ -1,0 +1,20 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+.gameboard {
+  background-color: aquamarine;
+}
+
+.row {
+  display: flex;
+  justify-content: center;
+}
+
+.cell {
+  height: 30px;
+  width: 30px;
+  background-color: bisque;
+  outline: 1px solid #fff;
+}
